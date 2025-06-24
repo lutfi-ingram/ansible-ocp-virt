@@ -1,1 +1,13 @@
-
+collections:
+- name: redhat.openshift
+  version: 5.0.0
+  type: file
+  source: /ansible/redhat-openshift-5.0.0.tar.gz
+- name: redhat.openshift_virtualization
+  version: 2.2.3
+  type: file
+  source: /ansible/redhat-openshift_virtualization-2.2.3.tar.gz
+- name: kubernetes.core
+  version: 6.0.0
+  type: file
+  source: /ansible/kubernetes-core-6.0.0.tar.gz
