@@ -1,7 +1,5 @@
 ---
 plugin: "redhat.openshift_virtualization.kubevirt"
-host: "https://api.lenovo204t.lenovoocpsno.com:6443"
-api_key: "{{ lookup('env', 'K8S_AUTH_TOKEN') }}"
 validate_certs: false
 namespaces:
   - "yl-aap"
