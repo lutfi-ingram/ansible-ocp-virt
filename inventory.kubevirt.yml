@@ -1,5 +1,7 @@
 ---
-plugin: redhat.openshift_virtualization.kubevirt
-connections:
-  - use_service: False
-    validate_certs: False
+plugin: "redhat.openshift_virtualization.kubevirt"
+host: "{{ lookup('env', 'K8S_AUTH_HOST') }}"
+api_key: "{{ lookup('env', 'K8S_AUTH_TOKEN') }}"
+validate_certs: false
+namespaces:
+  - "yl-aap"
