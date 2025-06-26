@@ -1,4 +1,4 @@
-- hosts: namespace_workloads
+- hosts: "namespace_yl_aap"
   become: true  # Run tasks with root privileges
   tasks:
     - name: Install httpd package
