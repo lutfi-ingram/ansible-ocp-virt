@@ -7,12 +7,12 @@
         apiVersion: project.openshift.io/v1
         kind: Project
         metadata:
-          name: workloads
+          name: yl-aap
   - name: Create fedora virtual machine
     redhat.openshift_virtualization.kubevirt_vm:
       state: present
       name: fedora-httpd
-      namespace: workloads
+      namespace: yl-aap
       labels:
         app: httpd
       instancetype:
@@ -45,7 +45,7 @@
       api_version: kubevirt.io/v1
       kind: VirtualMachineInstance
       name: fedora-httpd
-      namespace: workloads
+      namespace: yl-aap
     register: vmi
     retries: 60
     delay: 10
