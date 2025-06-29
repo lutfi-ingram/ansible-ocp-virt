@@ -33,6 +33,11 @@
               image: quay.io/containerdisks/fedora:latest
             name: containerdisk
           - cloudInitNoCloud:
+              packages:
+                - openssh-server              
+              runcmd:
+                - [ systemctl, enable, sshd ]
+                - [ systemctl, start, sshd ]
               userData: |-
                 #cloud-config
                 # The default username is: fedora
@@ -50,3 +55,73 @@
     retries: 60
     delay: 10
     until: (vmi.resources[0].status.interfaces[0]['ipAddress'] | default('')) | length > 0
+
+  - name: Create Fedora VM and expose ports
+  hosts: localhost
+  gather_facts: false
+  tasks:
+
+    - name: Create fedora-httpd VM
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: kubevirt.io/v1
+          kind: VirtualMachine
+          metadata:
+            name: fedora-httpd
+            namespace: yl-aap
+          spec:
+            running: true
+            template:
+              metadata:
+                labels:
+                  kubevirt.io/domain: fedora-httpd
+              spec:
+                domain:
+                  devices:
+                    disks:
+                      - name: containerdisk
+                        disk:
+                          bus: virtio
+                      - name: cloudinitdisk
+                        disk:
+                          bus: virtio
+                  resources:
+                    requests:
+                      memory: 1Gi
+                volumes:
+                  - name: containerdisk
+                    containerDisk:
+                      image: quay.io/containerdisks/fedora:latest
+                  - name: cloudinitdisk
+                    cloudInitNoCloud:
+                      userData: |
+                        #cloud-config
+                        packages:
+                          - httpd
+                          - openssh-server
+                        runcmd:
+                          - systemctl enable httpd
+                          - systemctl start httpd
+                          - systemctl enable sshd
+                          - systemctl start sshd
+
+    - name: Expose SSH and HTTP ports via NodePort
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: fedora-httpd-svc
+            namespace: yl-aap
+          spec:
+            type: NodePort
+            selector:
+              kubevirt.io/domain: fedora-httpd
+            ports:
+              - name: ssh
+                port: 22
+                targetPort: 22
+                protocol: TCP
+            
