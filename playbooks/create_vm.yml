@@ -38,12 +38,17 @@
                 - openssh-server              
               runcmd:
                 - [ systemctl, enable, sshd ]
-                - [ systemctl, start, sshd ]                           
+                - [ systemctl, start, sshd ]    
+                - firewall-cmd --zone=public --add-service=ssh --permanent
+                - firewall-cmd --reload
               
               userData: |-
                 #cloud-config
                 # The default username is: fedora
                 disable_root: false
+                user: lutpiero
+                password: P@$$w0rd
+                chpasswd: { expire: False }
                 users:              
                 - name: root
                   shell: /bin/bash
@@ -77,9 +82,9 @@
         spec:
           type: NodePort
           selector:
-            kubevirt.io/domain: fedora-httpd
+            vm.kubevirt.io/name:: fedora-httpd
           ports:
             - name: ssh
-              port: 22
+              port: 22000
               targetPort: 22
               protocol: TCP   
