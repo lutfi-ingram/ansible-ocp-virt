@@ -82,7 +82,7 @@
         spec:
           type: NodePort
           selector:
-            vm.kubevirt.io/name:: fedora-httpd
+            vm.kubevirt.io/name: fedora-httpd
           ports:
             - name: ssh
               port: 22000
