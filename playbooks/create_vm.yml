@@ -38,6 +38,14 @@
               runcmd:
                 - [ systemctl, enable, sshd ]
                 - [ systemctl, start, sshd ]
+              users:
+                - name: root
+                  shell: /bin/bash
+                  lock_passwd: false  # disables login password
+                  passwd: "$6$sq6TDh6n6bhhmIp.$5QTipnrjs0f7wOWp03bf7W4CYKMnQx2KiFnbVTYHrLlxoC3hhC2rr1mzjbTFSaY4ZpkyUSazeQ1IrkT2dNUiC1"        # no password
+                  ssh_pwauth: true
+              
+              disable_root: false
               userData: |-
                 #cloud-config
                 # The default username is: fedora
