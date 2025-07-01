@@ -15,7 +15,7 @@
     - name: Check connection by listing a pod
       kubernetes.core.k8s_info:
         kind: Pod
-        namespace: "vm_namespace"
+        namespace: "{{ vm_namespace }}"
         
     - name: Ensure pip is installed
       package:
