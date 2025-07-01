@@ -15,12 +15,12 @@ child.expect("Successfully connected.*")
 child.send("\r")
 i = child.expect(["login:", "Password:", pexpect.TIMEOUT])
 if i in [0, 1]:
-    child.sendline("{{ username }}")  # Replace with your username
+    child.sendline("{{ default_username }}")  # Replace with your username
 else:
     raise Exception("Login prompt not found")
 
 child.expect("Password:")
-child.sendline("{{ password }}")  # Replace with your password
+child.sendline("{{ default_password }}")  # Replace with your password
 child.expect(r"\$ ")
 child.sendline("if rpm -q httpd >/dev/null; then echo 'already installed'; else sudo dnf install -y httpd && sudo systemctl enable httpd && sudo systemctl start httpd; fi;exit")
 child.expect("logout")
