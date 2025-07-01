@@ -54,8 +54,6 @@
                   - firewall-cmd --reload
 
                 userData: |-
-                  #cloud-config
-                  # The default username is: fedora
                   disable_root: false
                   user: "{{ default_username }}"
                   password: "{{ default_password }}"
@@ -67,10 +65,7 @@
                     passwd: "{{ default_password }}"
                   ssh_pwauth: true
                   ssh_authorized_keys:
-                  # if not available use the hardcoded public key
-                  - {{ lookup('env', 'SSH_PUBLIC_KEY') | default(
-                        'ssh-rsa DummY'
-                      ) }}
+                  - {{ lookup('env', 'SSH_PUBLIC_KEY') | default('ssh-rsa DummY') }}
               name: cloudinit
 
     - name: Wait for virtual machine IP to be populated
