@@ -11,12 +11,7 @@
     username: "lutpiero"
     password: "P@$$w0rd"
 
-  tasks:
-    - name: Check connection by listing a pod
-      kubernetes.core.k8s_info:
-        kind: Pod
-        namespace: "{{ vm_namespace }}"
-        
+  tasks:          
     - name: Ensure pip is installed
       package:
         name: python3-pip
@@ -47,7 +42,26 @@
         remote_src: yes
         mode: '0755'
       when: not virtctl_check.stat.exists
+    - name: Check connection by listing a pod
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: "{{ vm_namespace }}"
 
+    - name: Find existing kubeconfig
+      stat:
+        path: "{{ item }}"
+      with_items:
+        - "{{ lookup('env', 'KUBECONFIG') | default('~/.kube/config', true) }}"
+        - "/etc/kubernetes/admin.conf"
+        - "/root/.kube/config"
+      register: kubeconfig_candidates
+    
+    - name: Set kubeconfig path if found
+      set_fact:
+        kubeconfig_path: "{{ item.item }}"
+      when: item.stat.exists
+      loop: "{{ kubeconfig_candidates.results }}"
+      
     - name: Generate script from template
       template:
         src: virtctl-console.py.j2
