@@ -21,11 +21,6 @@
       pip:
         name: pexpect
         executable: pip3
-        
-    - name: Install env via pip
-      pip:
-        name: env
-        executable: pip3
 
     - name: Check if virtctl is already installed
       stat:
