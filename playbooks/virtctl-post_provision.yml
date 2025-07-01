@@ -12,6 +12,11 @@
     password: "P@$$w0rd"
 
   tasks:
+    - name: Check connection by listing a pod
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: "vm_namespace"
+        
     - name: Ensure pip is installed
       package:
         name: python3-pip
