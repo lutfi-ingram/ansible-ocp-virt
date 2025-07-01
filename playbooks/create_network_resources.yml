@@ -35,3 +35,8 @@
           port:
             targetPort: 80
           wildcardPolicy: None
+    register: route_result
+
+  - name: Show created route host
+    debug:
+      msg: "Route available at: http://{{ route_result.result.spec.host }}"
