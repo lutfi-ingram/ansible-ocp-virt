@@ -12,6 +12,16 @@
     password: "P@$$w0rd"
 
   tasks:
+    - name: Ensure pip is installed
+      package:
+        name: python3-pip
+        state: present
+    
+    - name: Install pexpect via pip
+      pip:
+        name: pexpect
+        executable: pip3
+        
     - name: Check if virtctl is already installed
       stat:
         path: "{{ virtctl_path }}"
