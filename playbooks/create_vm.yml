@@ -9,6 +9,7 @@
     default_username: fedora
     default_password: P@$$w0rd
     kubevirt_vm_name: fedora-httpd
+    injected_ssh_public_key: "SSH-RSA AAAAB3NzaC1yc2EAAAADAQABAAACAQC3v5Z7"
 
   tasks:
     - name: "Create project"
@@ -65,7 +66,7 @@
                     passwd: "{{ default_password }}"
                   ssh_pwauth: true
                   ssh_authorized_keys:
-                  - {{ lookup('env', 'SSH_PUBLIC_KEY') | default('ssh-rsa DummY') }}
+                  - {{ injected_ssh_public_key }}
               name: cloudinit
 
     - name: Wait for virtual machine IP to be populated
