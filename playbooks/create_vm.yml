@@ -24,13 +24,13 @@
       redhat.openshift_virtualization.kubevirt_vm:
         state: present
         name: "{{ kubevirt_namespace }}"
-        namespace: yl-aap
+        namespace: "{{ kubevirt_namespace }}"
         labels:
           app: httpd
         instancetype:
-          name: u1.medium
+          name: "{{ kubevirt_instancetype }}"
         preference:
-          name: fedora
+          name: "{{ kubevirt_preference }}"
         spec:
           domain:
             devices:
