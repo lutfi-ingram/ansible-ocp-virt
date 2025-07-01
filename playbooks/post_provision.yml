@@ -1,4 +1,6 @@
-- hosts: "namespace_yl_aap"
+---
+- name: Install httpd on newly created VM
+  hosts: "namespace_yl_aap"
   become: true  # Run tasks with root privileges
   tasks:
     - name: Install httpd package
@@ -10,4 +12,4 @@
       ansible.builtin.service:
         name: httpd
         state: started
-        enabled: yes  
+        enabled: true

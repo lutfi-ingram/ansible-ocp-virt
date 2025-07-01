@@ -1,90 +1,101 @@
-- hosts: localhost  # Target all hosts in your inventory
-  tasks:
-  - name: Create project
-    redhat.openshift.k8s:
-      state: present
-      definition:
-        apiVersion: project.openshift.io/v1
-        kind: Project
-        metadata:
-          name: yl-aap
-          
-  - name: Create fedora virtual machine
-    redhat.openshift_virtualization.kubevirt_vm:
-      state: present
-      name: fedora-httpd
-      namespace: yl-aap
-      labels:
-        app: httpd
-      instancetype:
-        name: u1.medium
-      preference:
-        name: fedora
-      spec:
-        domain:
-          devices:
-            interfaces:
-              - name: default
-                masquerade: {}
-        networks:
-          - name: default
-            pod: {}
-        volumes:
-          - containerDisk:
-              image: quay.io/containerdisks/fedora:latest
-            name: containerdisk
-          - cloudInitNoCloud:
-              packages:
-                - openssh-server              
-              runcmd:
-                - [ systemctl, enable, sshd ]
-                - [ systemctl, start, sshd ]    
-                - firewall-cmd --zone=public --add-service=ssh --permanent
-                - firewall-cmd --reload
-              
-              userData: |-
-                #cloud-config
-                # The default username is: fedora
-                disable_root: false
-                user: lutpiero
-                password: P@$$w0rd
-                chpasswd: { expire: False }
-                users:              
-                - name: root
-                  shell: /bin/bash
-                  lock_passwd: false  # disables login password
-                  passwd: "$6$2K4V7ulKbvCEigka$ALf90b/xdWgfFpvxFJIGGMhX6elVd32TjxtImOe1TUsMOOiXeMLWuboJIroO1KUX5qc.iHVO6TLI0Nte9uphs/"
-                ssh_pwauth: true
-                ssh_authorized_keys:
-                - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCc7QLJk9xxhPAKx+IVjCJEboHwmU03gVi0YSMdSiga3BjGxJ5LWedJzbClgAGwd1hqZBoB00ALZyjSZ+Zsbr0uu1kEtbYPBHWKkVIpYlBQ6Pohz2QlDPJrR5GKTdOx/ugUTyJGVcoutab5WxbpNLAscbdyjNdPmGJYMozYVtTIoGATWj1TlqOsNcmriev5jY4FLNCLtkcAxPkqVcYvS7CL9tvurfY4Ua63THV0ZWqFd3MCWX3Z1fYlDw3cREBOx5AsehvZqk9QhRg14LPw1LNirxurogEt7Xz1uBNSQZS0YvpCHhdYwf1BbOlc7vqoM0qgyjN4Ub7j6vf89IyKpcfWbJ7o2yuFMx3uyTmj56FJMO6C57c7gdii7xIA8m9GGnvSgh61eVtxOQeW3A3/1LZeFuyW9FLhzsx2/ZaV0irl+9r4eCVOLUcnTbvlEfXgD0nTzulV98i10+SiODsZ7rEgVx65aRUlrjVTsJMqn+6bKkc2PsdpXBajj5hQOt3k0Bc=
-            name: cloudinit
-  
-  - name: Wait for virtual machine IP to be populated
-    kubernetes.core.k8s_info:
-      api_version: kubevirt.io/v1
-      kind: VirtualMachineInstance
-      name: fedora-httpd
-      namespace: yl-aap
-    register: vmi
-    retries: 60
-    delay: 10
-    until: (vmi.resources[0].status.interfaces[0]['ipAddress'] | default('')) | length > 0
+---
+- name: Create a Fedora VM with KubeVirt on OpenShift
+  gather_facts: false
+  hosts: all  # Target all hosts in your inventory
+  vars:
+    kubevirt_instancetype: u1.medium
+    kubevirt_preference: fedora
+    kubevirt_namespace: yl-aap
+    default_username: fedora
+    default_password: P@$$w0rd
+    kubevirt_vm_name: fedora-httpd
 
-  - name: Expose SSH and HTTP ports via NodePort
-    kubernetes.core.k8s:
-      state: present
-      definition:
-        apiVersion: v1
-        kind: Service
-        metadata:
-          name: fedora-httpd-svc
-          namespace: yl-aap
+  tasks:
+    - name: "Create project"
+      redhat.openshift.k8s:
+        state: present
+        definition:
+          apiVersion: project.openshift.io/v1
+          kind: Project
+          metadata:
+            name: "{{ kubevirt_namespace }}"
+
+    - name: Create fedora virtual machine
+      redhat.openshift_virtualization.kubevirt_vm:
+        state: present
+        name: "{{ kubevirt_namespace }}"
+        namespace: yl-aap
+        labels:
+          app: httpd
+        instancetype:
+          name: u1.medium
+        preference:
+          name: fedora
         spec:
-          type: NodePort
-          selector:
-            vm.kubevirt.io/name: fedora-httpd
-          ports:
-            - name: ssh
-              port: 22000
-              targetPort: 22
-              protocol: TCP   
+          domain:
+            devices:
+              interfaces:
+                - name: default
+                  masquerade: {}
+          networks:
+            - name: default
+              pod: {}
+          volumes:
+            - containerDisk:
+                image: quay.io/containerdisks/fedora:latest
+              name: containerdisk
+            - cloudInitNoCloud:
+                packages:
+                  - openssh-server
+                runcmd:
+                  - [systemctl, enable, sshd]
+                  - [systemctl, start, sshd]
+                  - firewall-cmd --zone=public --add-service=ssh --permanent
+                  - firewall-cmd --reload
+
+                userData: |-
+                  #cloud-config
+                  # The default username is: fedora
+                  disable_root: false
+                  user: "{{ default_username }}"
+                  password: "{{ default_password }}"
+                  chpasswd: { expire: False }
+                  users:
+                  - name: root
+                    shell: /bin/bash
+                    lock_passwd: false  # disables login password
+                    passwd: "{{ default_password }}"
+                  ssh_pwauth: true
+                  ssh_authorized_keys:
+                  - "{{ lookup('env', 'SSH_PUBLIC_KEY') }}"
+              name: cloudinit
+
+    - name: Wait for virtual machine IP to be populated
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachineInstance
+        name: "{{ kubevirt_vm_name }}"
+        namespace: "{{ kubevirt_namespace }}"
+      register: vmi
+      retries: 60
+      delay: 10
+      until: (vmi.resources[0].status.interfaces[0]['ipAddress'] | default('')) | length > 0
+
+    - name: Expose SSH and HTTP ports via NodePort
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ kubevirt_vm_name }}-svc"
+            namespace: "{{ kubevirt_namespace }}"
+          spec:
+            type: NodePort
+            selector:
+              vm.kubevirt.io/name: "{{ kubevirt_vm_name }}"
+            ports:
+              - name: ssh
+                port: 22000
+                targetPort: 22
+                protocol: TCP
