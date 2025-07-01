@@ -56,13 +56,13 @@
 
                 userData: |-
                   disable_root: false
-                  user: "{{ default_username }}"
-                  password: "{{ default_password }}"
+                  user: {{ default_username }}
+                  password: {{ default_password }}
                   chpasswd: { expire: False }
                   users:
                   - name: root
                     shell: /bin/bash
-                    lock_passwd: false  # disables login password
+                    lock_passwd: false
                     passwd: "{{ default_password }}"
                   ssh_pwauth: true
                   ssh_authorized_keys:
