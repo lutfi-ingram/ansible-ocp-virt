@@ -1,0 +1,22 @@
+import pexpect
+import sys
+
+child = pexpect.spawn("virtctl console fedora-httpd -n yl-aap", timeout=30,encoding='utf-8')
+# child.logfile = sys.stdout  # Show real-time logs
+
+child.expect("Successfully connected.*")
+# Send enter key
+child.send("\r")
+i = child.expect(["login:", "Password:", pexpect.TIMEOUT])
+if i in [0, 1]:
+    child.sendline("{{ username }}")  # Replace with your username
+else:
+    raise Exception("Login prompt not found")
+
+child.expect("Password:")
+child.sendline("{{ password }}")  # Replace with your password
+child.expect(r"\$ ")
+child.sendline("if rpm -q httpd >/dev/null; then echo 'already installed'; else sudo dnf install -y httpd && sudo systemctl enable httpd && sudo systemctl start httpd; fi;exit")
+child.expect("logout")
+child.send("\x1d")  # Ctrl+]
+child.close()
