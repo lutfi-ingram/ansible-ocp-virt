@@ -10,7 +10,7 @@
           kind: Service
           metadata:
             name: httpd-svc
-            namespace: "yl-aap"
+            namespace: "{{ kubevirt_namespace }}"
           spec:
             selector:
               app: httpd
@@ -28,7 +28,7 @@
           apiVersion: route.openshift.io/v1
           metadata:
             name: httpd-route
-            namespace: "yl-aap"
+            namespace: "{{ kubevirt_namespace }}"
           spec:
             to:
               kind: Service

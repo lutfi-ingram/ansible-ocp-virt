@@ -20,10 +20,10 @@
           metadata:
             name: "{{ kubevirt_namespace }}"
 
-    - name: Create fedora virtual machine
+    - name: "Create virtual machine {{ kubevirt_preference }}"
       redhat.openshift_virtualization.kubevirt_vm:
         state: present
-        name: "{{ kubevirt_namespace }}"
+        name: "{{ kubevirt_vm_name }}"
         namespace: "{{ kubevirt_namespace }}"
         labels:
           app: httpd
@@ -42,7 +42,7 @@
               pod: {}
           volumes:
             - containerDisk:
-                image: quay.io/containerdisks/fedora:latest
+                image: quay.io/containerdisks/{{ kubevirt_preference }}:latest
               name: containerdisk
             - cloudInitNoCloud:
                 packages:
