@@ -1,7 +1,13 @@
 import pexpect
 import sys
+import env
 
-child = pexpect.spawn("virtctl console fedora-httpd -n yl-aap", timeout=30,encoding='utf-8')
+env = os.environ.copy()
+
+# Set/override KUBECONFIG in the env
+env['KUBECONFIG'] = '/tmp/kubeconfig'  
+
+child = pexpect.spawn("virtctl console fedora-httpd -n yl-aap", timeout=30, env=env, encoding='utf-8')
 # child.logfile = sys.stdout  # Show real-time logs
 
 child.expect("Successfully connected.*")
