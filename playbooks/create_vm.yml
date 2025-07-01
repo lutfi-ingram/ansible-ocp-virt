@@ -10,6 +10,7 @@
     default_password: P@$$w0rd
     kubevirt_vm_name: fedora-httpd
     injected_ssh_public_key: "SSH-RSA AAAAB3NzaC1yc2EAAAADAQABAAACAQC3v5Z7"
+    virtctl_timeout: 90  # Timeout for virtctl console command
 
   tasks:
     - name: "Create project"
