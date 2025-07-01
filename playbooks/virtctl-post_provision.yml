@@ -1,0 +1,44 @@
+---
+- name: Install virtctl and run httpd setup in VM
+  hosts: localhost
+  gather_facts: false
+  vars:
+    virtctl_version: "v1.5.2"
+    virtctl_url: "https://github.com/kubevirt/kubevirt/releases/download/{{ virtctl_version }}/virtctl-{{ virtctl_version }}-linux-amd64"
+    virtctl_path: "/usr/local/bin/virtctl"
+    vm_name: "fedora-httpd"
+    vm_namespace: "yl-aap"
+    username: "lutpiero"
+    password: "P@$$w0rd"
+
+  tasks:
+    - name: Check if virtctl is already installed
+      stat:
+        path: "{{ virtctl_path }}"
+      register: virtctl_check
+
+    - name: Download virtctl binary if not present
+      get_url:
+        url: "{{ virtctl_url }}"
+        dest: "/tmp/virtctl"
+        mode: '0755'
+      when: not virtctl_check.stat.exists
+
+    - name: Move virtctl to /usr/local/bin if not present
+      become: true
+      copy:
+        src: "/tmp/virtctl"
+        dest: "{{ virtctl_path }}"
+        remote_src: yes
+        mode: '0755'
+      when: not virtctl_check.stat.exists
+
+    - name: Generate script from template
+      template:
+        src: virtctl-console.py.j2
+        dest: /tmp/virtctl-console.py
+        mode: '0755'
+
+    - name: Run the script
+      command: python3 /tmp/virtctl-console.py
+        
