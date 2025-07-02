@@ -48,27 +48,29 @@
                 image: quay.io/containerdisks/{{ kubevirt_preference }}:latest
               name: containerdisk
             - cloudInitNoCloud:
-                packages:
-                  - openssh-server
-                runcmd:
-                  - [systemctl, enable, sshd]
-                  - [systemctl, start, sshd]
-                  - firewall-cmd --zone=public --add-service=ssh --permanent
-                  - firewall-cmd --reload
-
                 userData: |-
                   disable_root: false
                   user: {{ default_username }}
                   password: {{ default_password }}
                   chpasswd: { expire: False }
                   users:
-                  - name: root
-                    shell: /bin/bash
-                    lock_passwd: false
-                    passwd: "{{ default_root_password_hashed }}"
+                    - name: root
+                      shell: /bin/bash
+                      lock_passwd: false
+                      passwd: "{{ default_root_password_hashed }}"
+                    - name: {{ default_username }}
+                      password: {{ default_password }}
+                      chpasswd: { expire: False }
                   ssh_pwauth: true
                   ssh_authorized_keys:
-                  - {{ injected_ssh_public_key }}
+                    - {{ injected_ssh_public_key }}
+                  packages:
+                    - openssh-server
+                  runcmd:
+                    - [ systemctl, enable, sshd ]
+                    - [ systemctl, start, sshd ]
+                    - firewall-cmd --zone=public --add-service=ssh --permanent
+                    - firewall-cmd --reload
               name: cloudinit
 
     - name: Wait for virtual machine IP to be populated
