@@ -51,21 +51,18 @@
                 userData: |-
                   #cloud-config
                   disable_root: false
-                  user: {{ default_username }}
-                  password: {{ default_password }}
-                  chpasswd: { expire: False }
                   users:
                     - name: root
                       shell: /bin/bash
                       lock_passwd: false
                       passwd: "{{ default_root_password_hashed }}"
+                      ssh_authorized_keys:
+                        - {{ injected_ssh_public_key }}
                     - name: {{ default_username }}
                       passwd: {{ default_password }}
                       chpasswd: { expire: False }
                       lock_passwd: false
                   ssh_pwauth: true
-                  ssh_authorized_keys:
-                    - {{ injected_ssh_public_key }}
                   packages:
                     - openssh-server
                   runcmd:
