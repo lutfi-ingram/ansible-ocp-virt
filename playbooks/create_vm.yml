@@ -8,6 +8,7 @@
     kubevirt_namespace: yl-aap
     default_username: fedora
     default_password: P@$$w0rd
+    default_root_password_hashed: $6$2K4V7ulKbvCEigka$ALf90b/xdWgfFpvxFJIGGMhX6elVd32TjxtImOe1TUsMOOiXeMLWuboJIroO1KUX5qc.iHVO6TLI0Nte9uphs/
     kubevirt_vm_name: fedora-httpd
     injected_ssh_public_key: "SSH-RSA AAAAB3NzaC1yc2EAAAADAQABAAACAQC3v5Z7"
     virtctl_timeout: 90  # Timeout for virtctl console command
@@ -64,7 +65,7 @@
                   - name: root
                     shell: /bin/bash
                     lock_passwd: false
-                    passwd: "{{ default_password }}"
+                    passwd: "{{ default_root_password }}"
                   ssh_pwauth: true
                   ssh_authorized_keys:
                   - {{ injected_ssh_public_key }}
