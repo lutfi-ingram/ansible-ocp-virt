@@ -59,7 +59,7 @@
                       lock_passwd: false
                       passwd: "{{ default_root_password_hashed }}"
                     - name: {{ default_username }}
-                      password: {{ default_password }}
+                      passwd: {{ default_password }}
                       chpasswd: { expire: False }
                       lock_passwd: false
                   ssh_pwauth: true
