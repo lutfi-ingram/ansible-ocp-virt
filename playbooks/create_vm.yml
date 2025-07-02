@@ -49,6 +49,7 @@
               name: containerdisk
             - cloudInitNoCloud:
                 userData: |-
+                  #cloud-config
                   disable_root: false
                   user: {{ default_username }}
                   password: {{ default_password }}
