@@ -65,7 +65,7 @@
                   - name: root
                     shell: /bin/bash
                     lock_passwd: false
-                    passwd: "{{ default_root_password }}"
+                    passwd: "{{ default_root_password_hashed }}"
                   ssh_pwauth: true
                   ssh_authorized_keys:
                   - {{ injected_ssh_public_key }}
