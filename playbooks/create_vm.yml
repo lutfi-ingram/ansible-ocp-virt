@@ -61,6 +61,7 @@
                     - name: {{ default_username }}
                       password: {{ default_password }}
                       chpasswd: { expire: False }
+                      lock_passwd: false
                   ssh_pwauth: true
                   ssh_authorized_keys:
                     - {{ injected_ssh_public_key }}
